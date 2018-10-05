@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="Avenir.ttc">
+            <string>Avenir-Book</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="TipsTableViewCell" rowHeight="59" id="KGk-i7-Jjw" customClass="TipsTableViewCell" customModule="PrivateEye" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="322" height="59"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="322" height="58.5"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pjg-zE-S6n">
+                        <rect key="frame" x="26" y="16" width="251" height="27"/>
+                        <fontDescription key="fontDescription" name="Avenir-Book" family="Avenir" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qc7-oS-Z1Q">
+                        <rect key="frame" x="282" y="12" width="35" height="35"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="35" id="RYb-vP-TS1"/>
+                            <constraint firstAttribute="width" constant="35" id="dI0-CY-Emy"/>
+                        </constraints>
+                        <color key="tintColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <state key="normal" image="unchecked"/>
+                        <connections>
+                            <action selector="clickBtnSelectCheckbox:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="tLL-Wg-aWh"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="qc7-oS-Z1Q" secondAttribute="trailing" constant="5" id="06P-ez-Dzm"/>
+                    <constraint firstItem="pjg-zE-S6n" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" constant="5" id="1vq-mL-Q5m"/>
+                    <constraint firstItem="qc7-oS-Z1Q" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="Cu7-75-1mb"/>
+                    <constraint firstItem="qc7-oS-Z1Q" firstAttribute="leading" secondItem="pjg-zE-S6n" secondAttribute="trailing" constant="5" id="UTl-4D-RaF"/>
+                    <constraint firstAttribute="bottomMargin" secondItem="pjg-zE-S6n" secondAttribute="bottom" constant="5" id="UmK-il-1dj"/>
+                    <constraint firstItem="pjg-zE-S6n" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" constant="10" id="rhC-vS-bQl"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <connections>
+                <outlet property="btnSelectCheckbox" destination="qc7-oS-Z1Q" id="QLh-nY-VXz"/>
+                <outlet property="lblDescription" destination="pjg-zE-S6n" id="maW-Q2-Vv5"/>
+            </connections>
+            <point key="canvasLocation" x="-209" y="35.5"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="unchecked" width="25" height="25"/>
+    </resources>
+</document>
