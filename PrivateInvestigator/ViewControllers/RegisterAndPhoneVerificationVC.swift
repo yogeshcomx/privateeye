@@ -11,6 +11,8 @@ import UIDropDown
 import GoogleSignIn
 import FBSDKLoginKit
 import FirebaseAuth
+import CoreLocation
+import IQKeyboardManagerSwift
 
 class RegisterAndPhoneVerificationVC: UIViewController, GIDSignInUIDelegate, FBSDKLoginButtonDelegate {
     
@@ -32,6 +34,8 @@ class RegisterAndPhoneVerificationVC: UIViewController, GIDSignInUIDelegate, FBS
     var googleId:String = ""
     var forRegister:Bool = false
     
+    let locationManager = CLLocationManager()
+    
     //Array Variable Declarations
     var countryCodeList:[Country] = [] 
     
@@ -45,6 +49,11 @@ class RegisterAndPhoneVerificationVC: UIViewController, GIDSignInUIDelegate, FBS
         //getContriesDataFromFile()
         getCountriesDataFromServer()
         loadPhoneVerificationView()
+        setupLocationManager()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        IQKeyboardManager.sharedManager().enableAutoToolbar = false
     }
     
     
@@ -122,6 +131,10 @@ class RegisterAndPhoneVerificationVC: UIViewController, GIDSignInUIDelegate, FBS
         btnResend.roundAllCorners(radius: 5.0)
         btnResend.addBorder(color: UIColor.black.cgColor, width: 1.0)
         viewOTP.isHidden = true
+        txtEmail.delegate = self
+        txtMobile.delegate = self
+        txtPassword.delegate = self
+        txtOtp.delegate = self
         if self.userRoleID == 0 {
             let roleid = UserDefaults.standard.integer(forKey: userRoleIdUserDefaults) ?? 0
             self.userRoleID = roleid
@@ -202,12 +215,18 @@ class RegisterAndPhoneVerificationVC: UIViewController, GIDSignInUIDelegate, FBS
         if countriesListGlobal.count > 0 {
             self.countryCodeList = countriesListGlobal
             self.setUpContryDropDown()
+            if selectedCountry == nil {
+                setupLocationManager()
+            }
         } else {
             showActivityIndicator()
             APIManager.sharedInstance.getCountryCodeList(onSuccess: { countries in
                 self.countryCodeList = countries
                 self.setUpContryDropDown()
                 self.hideActivityIndicator()
+                if self.selectedCountry == nil {
+                    self.setupLocationManager()
+                }
                 
             }, onFailure: { error in
                 print(error)
@@ -413,7 +432,103 @@ class RegisterAndPhoneVerificationVC: UIViewController, GIDSignInUIDelegate, FBS
     
     
     
+    func setupLocationManager() {
+        locationManager.requestAlwaysAuthorization()
+        locationManager.requestWhenInUseAuthorization()
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+            locationManager.startUpdatingLocation()
+        }
+    }
+    
+    func endLocationManager() {
+        locationManager.stopUpdatingLocation()
+    }
+    
+    func fillAddressFieldsFromLocation(loc: CLLocationCoordinate2D, forCountry: Bool) {
+        let ceo: CLGeocoder = CLGeocoder()
+        let location: CLLocation = CLLocation(latitude:loc.latitude, longitude: loc.longitude)
+        ceo.reverseGeocodeLocation(location, completionHandler:
+            {(placemarks, error) in
+                if (error != nil)
+                {
+                    print("reverse geodcode fail: \(error!.localizedDescription)")
+                }
+                if let pm = placemarks as? [CLPlacemark] {
+                    if pm.count > 0 {
+                        let pm = placemarks![0]
+                        var addressString : String = ""
+                        if forCountry {
+                            if pm.country != nil {
+                                let filteredCountry = self.countryCodeList.filter{$0.country_name == pm.country!}
+                                if filteredCountry.count > 0 {
+                                    self.selectedCountry = filteredCountry[0]
+                                    self.dropDownCountryCode.title.text = self.selectedCountry?.country_code
+                                }
+                            }
+                            return
+                        }
+                    }
+                    
+                }
+                
+        })
+    }
+    
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     }
     
+}
+
+
+extension RegisterAndPhoneVerificationVC : CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
+        fillAddressFieldsFromLocation(loc: locValue, forCountry: true)
+        endLocationManager()
+    }
+}
+
+extension RegisterAndPhoneVerificationVC : UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        if textField == txtMobile {
+            IQKeyboardManager.sharedManager().enableAutoToolbar = true
+        } else {
+            IQKeyboardManager.sharedManager().enableAutoToolbar = false
+        }
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if textField == txtMobile {
+            txtPassword.becomeFirstResponder()
+            IQKeyboardManager.sharedManager().enableAutoToolbar = false
+        }
+    }
+    
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        if textField == txtEmail {
+            txtMobile.becomeFirstResponder()
+        } else if textField == txtMobile {
+            txtPassword.becomeFirstResponder()
+            IQKeyboardManager.sharedManager().enableAutoToolbar = false
+        } else if textField == txtPassword {
+            if let userDetails:Dictionary<String,Any> = UserDefaults.standard.value(forKey: userProfileDetailsUserDefaults) as? Dictionary<String, Any> {
+                var user = userDetails
+                user["Phone"] = txtMobile.text!
+                user["Countrycode"] = selectedCountry?.country_code ?? ""
+                UserDefaults.standard.set(user, forKey: userProfileDetailsUserDefaults)
+            } else {
+                let userDetailsDictionary: [String:String] = ["FirstName": "", "LastName": "", "Gender": "", "DOB" : "", "GoogleID": "", "FacebookID": "", "Email": txtEmail.text!, "Phone": txtMobile.text!, "Countrycode" : selectedCountry?.country_code ?? "", "ProfilePicUrl" : "", "Address": "", "Street" : "", "City": "", "State": "", "Country" : "", "ZipCode" : "", "CurrentEmployer" : "", "EquipmentTags" : "", "Latitude" : "", "Longitude" : ""]
+                UserDefaults.standard.set(userDetailsDictionary, forKey: userProfileDetailsUserDefaults)
+            }
+            register()
+        } else if textField == txtOtp {
+            verifyPhoneNumberOTPFromFirebase()
+        }
+        return true
+    }
 }

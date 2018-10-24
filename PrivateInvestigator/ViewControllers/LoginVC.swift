@@ -7,17 +7,25 @@
 //
 
 import UIKit
+import IQKeyboardManagerSwift
 
 class LoginVC: UIViewController {
 
     @IBOutlet weak var txtEmailPhone: UITextField!
     @IBOutlet weak var txtPassword: UITextField!
     @IBOutlet weak var btnSignIn: UIButton!
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
 
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        IQKeyboardManager.sharedManager().enableAutoToolbar = false
+    }
+    
     
     @IBAction func clickBtnSignIn(_ sender: Any) {
         if !StringManager.sharedInstance.validateMobile(text: txtEmailPhone.text!) {
@@ -45,6 +53,8 @@ class LoginVC: UIViewController {
         btnSignIn.addBorder(color: UIColor.black.cgColor, width: 1.0)
         txtEmailPhone.layer.addBorder(edge: .bottom, color: UIColor.black, thickness: 1.0)
         txtPassword.layer.addBorder(edge: .bottom, color: UIColor.black, thickness: 1.0)
+        txtEmailPhone.delegate = self
+        txtPassword.delegate = self
     }
     
     func login() {
@@ -91,3 +101,38 @@ class LoginVC: UIViewController {
     }
 
 }
+
+extension LoginVC : UITextFieldDelegate {
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        if textField == txtEmailPhone {
+            IQKeyboardManager.sharedManager().enableAutoToolbar = true
+        } else {
+            IQKeyboardManager.sharedManager().enableAutoToolbar = false
+        }
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if textField == txtEmailPhone {
+            txtPassword.becomeFirstResponder()
+            IQKeyboardManager.sharedManager().enableAutoToolbar = false
+        }
+    }
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        if textField == txtPassword {
+            if !StringManager.sharedInstance.validateMobile(text: txtEmailPhone.text!) {
+                showAlert(title: "Error", message: "Please enter valid Mobile Number")
+            } else if !StringManager.sharedInstance.validatePassword(text: txtPassword.text!) {
+                showAlert(title: "Error", message: "Please enter valid Password")
+            } else {
+                login()
+            }
+        }
+        return true
+    }
+}
+
+
+

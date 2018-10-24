@@ -64,6 +64,7 @@ class NewPrivateEyeRegistrationVC: UIViewController, UIImagePickerControllerDele
         
     }
     
+    
     override func viewWillAppear(_ animated: Bool) {
         IQKeyboardManager.sharedManager().shouldResignOnTouchOutside = false
         IQKeyboardManager.sharedManager().keyboardDistanceFromTextField = 220
@@ -73,6 +74,7 @@ class NewPrivateEyeRegistrationVC: UIViewController, UIImagePickerControllerDele
     override func viewWillDisappear(_ animated: Bool) {
         IQKeyboardManager.sharedManager().shouldResignOnTouchOutside = true
         IQKeyboardManager.sharedManager().keyboardDistanceFromTextField = 10
+        IQKeyboardManager.sharedManager().enableAutoToolbar = false
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -389,8 +391,8 @@ class NewPrivateEyeRegistrationVC: UIViewController, UIImagePickerControllerDele
             self.hideActivityIndicator()
             if status {
                 UserDefaults.standard.set(profileUpdatedSignUpFlowValue, forKey: registrationFlowStatusUserDefaults)
-               // self.performSegue(withIdentifier: "toPaymentPIRegistrationFromPIRegistration", sender: self)
-                self.showPaymentScreen()
+                self.performSegue(withIdentifier: "toPaymentPIRegistrationFromPIRegistration", sender: self)
+              //  self.showPaymentScreen()
             } else {
                 self.showAlert(title: "Error", message: "Not able to update the profile.")
             }
@@ -430,11 +432,38 @@ extension NewPrivateEyeRegistrationVC : UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         IQKeyboardManager.sharedManager().shouldResignOnTouchOutside = true
         IQKeyboardManager.sharedManager().keyboardDistanceFromTextField = 10
+        if textField == txtPincode {
+            IQKeyboardManager.sharedManager().enableAutoToolbar = true
+        } else {
+            IQKeyboardManager.sharedManager().enableAutoToolbar = false
+        }
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
         IQKeyboardManager.sharedManager().shouldResignOnTouchOutside = false
         IQKeyboardManager.sharedManager().keyboardDistanceFromTextField = 220
+        if textField == txtPincode {
+            txtCountry.becomeFirstResponder()
+            IQKeyboardManager.sharedManager().enableAutoToolbar = false
+        }
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        if textField == txtFirstName {
+            txtLastName.becomeFirstResponder()
+        } else if textField == txtCountry {
+            txtState.becomeFirstResponder()
+        } else if textField == txtState {
+            txtCity.becomeFirstResponder()
+        } else if textField == txtCity {
+            txtStreet.becomeFirstResponder()
+        } else if textField == txtStreet {
+            txtExtraAddress.becomeFirstResponder()
+        } else if textField == txtExtraAddress {
+           txtCurrentEmployer.becomeFirstResponder()
+        }
+        return true
     }
 }
 
@@ -458,6 +487,7 @@ extension NewPrivateEyeRegistrationVC : LocationSelectionDelegate {
 
 extension NewPrivateEyeRegistrationVC : KSTokenViewDelegate {
     func tokenView(_ tokenView: KSTokenView, performSearchWithString string: String, completion: ((Array<AnyObject>) -> Void)?) {
+        dropDownPaymentMethod.isHidden = true
         if (string.isEmpty){
             completion!(tokensEquipmentTags as Array<AnyObject>)
             return
@@ -470,6 +500,9 @@ extension NewPrivateEyeRegistrationVC : KSTokenViewDelegate {
         completion!(filtered as Array<AnyObject>)
     }
     
+    func tokenViewDidEndEditing(_ tokenView: KSTokenView) {
+        dropDownPaymentMethod.isHidden = false
+    }
     
     func tokenView(_ tokenView: KSTokenView, displayTitleForObject object: AnyObject) -> String {
         return "\(object)"

@@ -20,6 +20,11 @@ class CaseTypeDetailsVC: UIViewController {
     @IBOutlet weak var dropdownCaseMinTime: UIDropDown!
     @IBOutlet weak var dropdownCaseLength: UIDropDown!
     
+    @IBOutlet weak var viewEstimatedCost: UIView!
+    @IBOutlet weak var lblEstimatedCostPrice: UILabel!
+    
+    @IBOutlet weak var btnSeeCostDetails: UIButton!
+    
     var selectedCase:CaseType?
     var selectedCaseMinTime:Int?
     var selectedCaseLength:CaseTime?
@@ -34,6 +39,7 @@ class CaseTypeDetailsVC: UIViewController {
         setupUI()
         getCaseTypeList()
         loadData()
+        setupEstimatedCostDetails()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -58,6 +64,8 @@ class CaseTypeDetailsVC: UIViewController {
         }
     }
     
+    @IBAction func clickBtnSeeCostDetails(_ sender: Any) {
+    }
     
     
     func setupUI() {
@@ -71,7 +79,7 @@ class CaseTypeDetailsVC: UIViewController {
     
     func setupDropdownCaseType() {
         dropdownCaseType.borderWidth = 1.0
-        dropdownCaseType.tableHeight = 450.0
+        dropdownCaseType.tableHeight = 420.0
         dropdownCaseType.extraWidth = 0.0
         dropdownCaseType.tableWillAppear {
             self.view.bringSubview(toFront: self.dropdownCaseType)
@@ -91,6 +99,7 @@ class CaseTypeDetailsVC: UIViewController {
             self.selectedCaseMinTime = nil
             self.setupDropdownCaseMinimumTime()
             self.setupDropdownCaseLength()
+            self.setupEstimatedCostDetails()
             let _ = self.dropdownCaseType.resign()
         }
         self.view.addSubview(dropdownCaseType)
@@ -146,12 +155,26 @@ class CaseTypeDetailsVC: UIViewController {
         dropdownCaseLength.didSelect { (option, index) in
             self.selectedCaseLength = filteredCaseLengthArray[index]
             self.dropdownCaseLength.title.text = filteredCaseLengthArray[index].title
+            self.setupEstimatedCostDetails()
             let _ = self.dropdownCaseLength.resign()
         }
         self.view.addSubview(dropdownCaseLength)
     }
     
+    
+    func setupEstimatedCostDetails() {
+        if selectedCaseLength == nil || selectedCase == nil {
+            viewEstimatedCost.isHidden = true
+        } else {
+            viewEstimatedCost.isHidden = false
+        }
+    }
+    
+    
     func loadData() {
+        if NewCaseVC.caseGlobal.selectedCaseLength != nil {
+            setupDropdownCaseLength()
+        }
         selectedCase = NewCaseVC.caseGlobal.selectedCaseType
         selectedCaseMinTime = NewCaseVC.caseGlobal.selectedCaseMinTime
         selectedCaseLength = NewCaseVC.caseGlobal.selectedCaseLength

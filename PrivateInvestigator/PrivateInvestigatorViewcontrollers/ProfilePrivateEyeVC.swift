@@ -71,7 +71,8 @@ class ProfilePrivateEyeVC: UIViewController, UIImagePickerControllerDelegate, UI
 override func viewWillDisappear(_ animated: Bool) {
     IQKeyboardManager.sharedManager().shouldResignOnTouchOutside = true
     IQKeyboardManager.sharedManager().keyboardDistanceFromTextField = 10
-}
+    IQKeyboardManager.sharedManager().enableAutoToolbar = false
+    }
     
     
     @IBAction func clickBtnEditAndDone(_ sender: Any) {
@@ -506,11 +507,42 @@ extension ProfilePrivateEyeVC : UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         IQKeyboardManager.sharedManager().shouldResignOnTouchOutside = true
         IQKeyboardManager.sharedManager().keyboardDistanceFromTextField = 10
+        if textField == txtZipcode {
+            IQKeyboardManager.sharedManager().enableAutoToolbar = true
+        } else {
+            IQKeyboardManager.sharedManager().enableAutoToolbar = false
+        }
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
         IQKeyboardManager.sharedManager().shouldResignOnTouchOutside = false
         IQKeyboardManager.sharedManager().keyboardDistanceFromTextField = 220
+        if textField == txtZipcode {
+            txtCountry.becomeFirstResponder()
+            IQKeyboardManager.sharedManager().enableAutoToolbar = false
+        }
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        if textField == txtFirstName {
+            txtLastName.becomeFirstResponder()
+        } else if textField == txtCountry {
+            txtState.becomeFirstResponder()
+        } else if textField == txtState {
+            txtCity.becomeFirstResponder()
+        } else if textField == txtCity {
+            txtStreet.becomeFirstResponder()
+        } else if textField == txtStreet {
+            txtExtraAddress.becomeFirstResponder()
+        } else if textField == txtExtraAddress {
+            if isEditingEnabled {
+                validateFieldsForUpdation()
+            } else {
+                setupProfileForEditing()
+            }
+        }
+        return true
     }
 }
 

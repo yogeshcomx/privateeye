@@ -9,6 +9,7 @@
 import UIKit
 import CoreLocation
 import UIDropDown
+import IQKeyboardManagerSwift
 
 
 class NewBookerRegistrationVC: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
@@ -47,6 +48,11 @@ class NewBookerRegistrationVC: UIViewController, UIImagePickerControllerDelegate
         setupLocationManager()
         loadProfileDetails()
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        IQKeyboardManager.sharedManager().enableAutoToolbar = false
+    }
+    
 
     @IBAction func clickBtnMaleCheckbox(_ sender: Any) {
         selectMaleOption()
@@ -71,6 +77,10 @@ class NewBookerRegistrationVC: UIViewController, UIImagePickerControllerDelegate
     }
     
     @IBAction func clickBtnDone(_ sender: Any) {
+        doneButtonActionFunction()
+    }
+    
+    @objc func doneButtonActionFunction() {
         if !StringManager.sharedInstance.validateName(text: txtFirstName.text!) {
             showAlert(title: "Error", message: "Please enter valid First Name")
         } else if !StringManager.sharedInstance.validateName(text: txtLastName.text!) {
@@ -127,6 +137,7 @@ class NewBookerRegistrationVC: UIViewController, UIImagePickerControllerDelegate
                 updateUserDetails()
             }
         }
+        
     }
     
     
@@ -156,6 +167,15 @@ class NewBookerRegistrationVC: UIViewController, UIImagePickerControllerDelegate
         txtCity.addTarget(self, action:#selector(textFieldDidChange(textField:)), for: UIControlEvents.editingChanged)
         txtStreet.addTarget(self, action:#selector(textFieldDidChange(textField:)), for: UIControlEvents.editingChanged)
         txtExtraAddress.addTarget(self, action:#selector(textFieldDidChange(textField:)), for: UIControlEvents.editingChanged)
+        
+        txtFirstName.delegate = self
+        txtLastName.delegate = self
+        txtPincode.delegate = self
+        txtCountry.delegate = self
+        txtCity.delegate = self
+        txtState.delegate = self
+        txtStreet.delegate = self
+        txtExtraAddress.delegate = self
     }
     
     func loadProfileDetails() {
@@ -337,5 +357,42 @@ extension NewBookerRegistrationVC : LocationSelectionDelegate {
         fillAddressFieldsFromLocation(loc: selectedLocation)
         userLat = selectedLocation.latitude
         userLng = selectedLocation.longitude
+    }
+}
+
+
+extension NewBookerRegistrationVC : UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        if textField == txtPincode {
+            IQKeyboardManager.sharedManager().enableAutoToolbar = true
+        } else {
+            IQKeyboardManager.sharedManager().enableAutoToolbar = false
+        }
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if textField == txtPincode {
+            txtCountry.becomeFirstResponder()
+            IQKeyboardManager.sharedManager().enableAutoToolbar = false
+        }
+    }
+    
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        if textField == txtFirstName {
+            txtLastName.becomeFirstResponder()
+        } else if textField == txtCountry {
+            txtState.becomeFirstResponder()
+        } else if textField == txtState {
+            txtCity.becomeFirstResponder()
+        } else if textField == txtCity {
+            txtStreet.becomeFirstResponder()
+        } else if textField == txtStreet {
+            txtExtraAddress.becomeFirstResponder()
+        } else if textField == txtExtraAddress {
+            doneButtonActionFunction()
+        }
+        return true
     }
 }

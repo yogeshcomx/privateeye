@@ -23,7 +23,9 @@ class PaymentPIRegistrationVC: UIViewController {
     }
     
     func setupUI() {
-        setBackButton(navigationController: navigationController!, willShowViewController: self, animated: true)
+        if navigationController != nil {
+            setBackButton(navigationController: navigationController!, willShowViewController: self, animated: true)
+        }
         
     }
 

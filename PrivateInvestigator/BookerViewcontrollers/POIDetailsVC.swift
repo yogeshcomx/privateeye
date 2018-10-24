@@ -21,6 +21,11 @@ class POIDetailsVC: UIViewController, UIGestureRecognizerDelegate {
     
     @IBOutlet weak var txtPOIName: UITextField!
     @IBOutlet weak var dropdownPOIType: UIDropDown!
+    @IBOutlet weak var lblGenderTitle: UILabel!
+    @IBOutlet weak var lblMaleTitle: UILabel!
+    @IBOutlet weak var lblGroupTitle: UILabel!
+    @IBOutlet weak var lblFemaleTitle: UILabel!
+    @IBOutlet weak var lblGenderBottomBorder: UILabel!
     @IBOutlet weak var btnMaleCheckbox: UIButton!
     @IBOutlet weak var btnFemaleCheckbox: UIButton!
     @IBOutlet weak var btnGroupCheckbox: UIButton!
@@ -32,6 +37,7 @@ class POIDetailsVC: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var btnTermsAndConditionCheckbox: UIButton!
     
     
+    @IBOutlet weak var constraintBtnMaleCheckboxTopToDropDownPOI: NSLayoutConstraint!
     
     var selectedImagesOfPOI: [UIImage] = []
     var selectedPOIName: String?
@@ -85,7 +91,16 @@ class POIDetailsVC: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @IBAction func clickBtnDone(_ sender: Any) {
-        selectedIdentifyingTags = identifyingTags.text
+        selectedIdentifyingTags = ""
+        let tokens = identifyingTags.tokens()
+        for (index, value) in (tokens?.enumerated())! {
+            if index == 0 {
+                selectedIdentifyingTags = selectedIdentifyingTags! + value.title
+            } else {
+                selectedIdentifyingTags = selectedIdentifyingTags! + ",\(value.title)"
+            }
+        }
+
         if txtPOIName.text! == "" {
             showAlert(title: "Error", message: "Please enter POI name")
         } else if selectedPOIType == nil {
@@ -175,12 +190,17 @@ class POIDetailsVC: UIViewController, UIGestureRecognizerDelegate {
             self.dropdownPOIType.title.text = POITypesListGlobal[index]
             if self.selectedPOIType?.lowercased().range(of:"male") != nil {
                 self.selectMaleOption()
+                self.ShowHideGenderOptions(show: false)
             }
-            if self.selectedPOIType?.lowercased().range(of:"female") != nil {
+            else if self.selectedPOIType?.lowercased().range(of:"female") != nil {
                 self.selectFemaleOption()
+                self.ShowHideGenderOptions(show: false)
             }
-            if self.selectedPOIType?.lowercased().range(of:"group") != nil {
+            else if self.selectedPOIType?.lowercased().range(of:"group") != nil {
                 self.selectGroupOption()
+                self.ShowHideGenderOptions(show: false)
+            } else {
+                self.ShowHideGenderOptions(show: true)
             }
             let _ = self.dropdownPOIType.resign()
         }
@@ -239,9 +259,14 @@ class POIDetailsVC: UIViewController, UIGestureRecognizerDelegate {
             }
             txtAge.text = selectedAge ?? ""
             dropdownAgeRange.title.text = selectedAgeRange ?? "Select age range"
-            identifyingTags.text = selectedIdentifyingTags ?? ""
+          //  identifyingTags.text = selectedIdentifyingTags ?? ""
             acceptedTermsAndConditions = !acceptedTermsAndConditions
             selectTermsAndConditions()
+            let stringTag:String = selectedIdentifyingTags ?? ""
+            let identifyingTagsArray = stringTag.components(separatedBy: ",")
+            for identity in identifyingTagsArray {
+                identifyingTags.addToken(KSToken(title: identity))
+            }
         }
     }
     
@@ -267,6 +292,31 @@ class POIDetailsVC: UIViewController, UIGestureRecognizerDelegate {
         btnMaleCheckbox.setImage(UIImage(named:"unchecked"), for: UIControlState.normal)
         btnFemaleCheckbox.setImage(UIImage(named:"unchecked"), for: UIControlState.normal)
         btnGroupCheckbox.setImage(UIImage(named:"checked"), for: UIControlState.normal)
+    }
+    
+    func ShowHideGenderOptions(show:Bool) {
+        if show {
+            lblGenderTitle.isHidden = false
+            btnMaleCheckbox.isHidden = false
+            lblMaleTitle.isHidden = false
+            btnFemaleCheckbox.isHidden = false
+            lblFemaleTitle.isHidden = false
+            btnGroupCheckbox.isHidden = false
+            lblGroupTitle.isHidden = false
+            lblGenderBottomBorder.isHidden = false
+            constraintBtnMaleCheckboxTopToDropDownPOI.constant = 50.0
+        } else {
+            lblGenderTitle.isHidden = true
+            btnMaleCheckbox.isHidden = true
+            lblMaleTitle.isHidden = true
+            btnFemaleCheckbox.isHidden = true
+            lblFemaleTitle.isHidden = true
+            btnGroupCheckbox.isHidden = true
+            lblGroupTitle.isHidden = true
+            lblGenderBottomBorder.isHidden = true
+            constraintBtnMaleCheckboxTopToDropDownPOI.constant = -25.0
+            
+        }
     }
     
     func selectTermsAndConditions() {

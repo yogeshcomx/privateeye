@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreLocation
+import IQKeyboardManagerSwift
 
 class ProfileBooker: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
 
@@ -48,6 +49,11 @@ class ProfileBooker: UIViewController, UIImagePickerControllerDelegate, UINaviga
         stopProfileEditing()
         getUserProfileDetails()
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        IQKeyboardManager.sharedManager().enableAutoToolbar = false
+    }
+
     
     
     @IBAction func clickBtnEditAndDone(_ sender: Any) {
@@ -100,6 +106,15 @@ class ProfileBooker: UIViewController, UIImagePickerControllerDelegate, UINaviga
         txtCity.addTarget(self, action:#selector(textFieldDidChange(textField:)), for: UIControlEvents.editingChanged)
         txtStreet.addTarget(self, action:#selector(textFieldDidChange(textField:)), for: UIControlEvents.editingChanged)
         txtExtraAddress.addTarget(self, action:#selector(textFieldDidChange(textField:)), for: UIControlEvents.editingChanged)
+        
+        txtFirstName.delegate = self
+        txtLastName.delegate = self
+        txtZipcode.delegate = self
+        txtCountry.delegate = self
+        txtCity.delegate = self
+        txtState.delegate = self
+        txtStreet.delegate = self
+        txtExtraAddress.delegate = self
     }
     
     func setupProfileForEditing() {
@@ -428,4 +443,45 @@ extension ProfileBooker : LocationSelectionDelegate {
         fillAddressFieldsFromLocation(loc: selectedLocation)
     }
 }
+
+extension ProfileBooker : UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        if textField == txtZipcode {
+            IQKeyboardManager.sharedManager().enableAutoToolbar = true
+        } else {
+            IQKeyboardManager.sharedManager().enableAutoToolbar = false
+        }
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if textField == txtZipcode {
+            txtCountry.becomeFirstResponder()
+            IQKeyboardManager.sharedManager().enableAutoToolbar = false
+        }
+    }
+    
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        if textField == txtFirstName {
+            txtLastName.becomeFirstResponder()
+        } else if textField == txtCountry {
+            txtState.becomeFirstResponder()
+        } else if textField == txtState {
+            txtCity.becomeFirstResponder()
+        } else if textField == txtCity {
+            txtStreet.becomeFirstResponder()
+        } else if textField == txtStreet {
+            txtExtraAddress.becomeFirstResponder()
+        } else if textField == txtExtraAddress {
+            if isEditingEnabled {
+                validateFieldsForUpdation()
+            } else {
+                setupProfileForEditing()
+            }
+        }
+        return true
+    }
+}
+
 

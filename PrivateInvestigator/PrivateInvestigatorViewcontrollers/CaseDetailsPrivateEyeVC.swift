@@ -196,6 +196,7 @@ class CaseDetailsPrivateEyeVC: UIViewController {
         btnUpdateCase.roundAllCorners(radius: 5.0)
         txtviewTestimoney.roundAllCorners(radius: 5.0)
         txtviewTestimoney.addBorder(color: UIColor.black.cgColor, width: 1.5)
+        txtviewTestimoney.delegate = self
     }
     
     
@@ -385,6 +386,20 @@ extension CaseDetailsPrivateEyeVC : UITableViewDelegate, UITableViewDataSource {
         cell.lblTitle.text = self.attachmentsFinalReport[indexPath.row].name
         cell.delegate = self
         return cell
+    }
+}
+
+extension CaseDetailsPrivateEyeVC : UITextViewDelegate {
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.text == "Testimoney (only facts)" {
+            textView.text = ""
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text == "" {
+            textView.text = "Testimoney (only facts)"
+        }
     }
 }
 
